@@ -5,6 +5,13 @@ const canvas = document.querySelector('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const ScoreEl = document.querySelector('#scoreEl');
+const StartButton = document.querySelector('#StartButton');
+const boxel = document.querySelector('#box');
+const boxscore = document.querySelector('#boxscore');
+
+
+
 
 /* api to use the canvas */
 const c = canvas.getContext('2d');
@@ -127,7 +134,7 @@ const x = canvas.width / 2
 const y = canvas.height / 2
 
 // creating an instance of player
-const player = new Player(x , y , 10 , 'white' )
+let player = new Player(x , y , 10 , 'white' )
 
 
 //defining the projectile instance 
@@ -137,9 +144,22 @@ const player = new Player(x , y , 10 , 'white' )
 
 
 //const projectiles=[projectile,projectile1]
-const projectiles = []
-const enemies = []
-const particles = []
+let  projectiles = []
+let  enemies = []
+let particles = []
+
+function init()
+{
+score = 0;
+player = new Player(x , y , 10 , 'white' )
+ projectiles = []
+enemies = []
+particles = []
+boxscore.innerHTML = score;
+ScoreEl.innerHTML = score;
+
+
+}
 
 function spawnEnemies()
 {
@@ -185,6 +205,7 @@ function spawnEnemies()
 
 
 let animationId; // a variable created to assign the animation request to it 
+let score = 0;
 function animate()
 {
 	//this makes it will call the same fucntion again and again 
@@ -221,6 +242,9 @@ enemies.forEach((enemy , index) => {enemy.update()
 	if(dist - player.radius - enemy.radius <  1 )
 	{
 		cancelAnimationFrame(animationId); // to stop the animation id when the palyer and enemy collide.
+		boxel.style.display = 'flex';
+		boxscore.innerHTML = score;
+
 	}
 
 	// note we need to write the below fucnction inside the main enemies so that the enemy attribute can be used inside the below fucntion.
@@ -230,12 +254,15 @@ enemies.forEach((enemy , index) => {enemy.update()
 
 	if(dist - projectile.radius - enemy.radius <  1 ) // dist - distance between center , so for collision we subtract the radii as well
 	{ 
+		
 		for(i = 0 ; i < enemy.radius * 2 ; i ++)
 		{
 			particles.push(new Particle(projectile.x , projectile.y , Math.random() * 2 , enemy.color , {x : (Math.random()- 0.5) * (Math.random() * 6), y : (Math.random()- 0.5) * (Math.random() * 6)}))
 		}
 		if (enemy.radius - 10 > 7 ) 
 		{
+			score += 10;
+		ScoreEl.innerHTML = score;
 			gsap.to(enemy,{radius :enemy.radius - 10});
 			//enemy.radius -= 10;
 			setTimeout(()=> { 
@@ -244,6 +271,8 @@ enemies.forEach((enemy , index) => {enemy.update()
 			}
 		else
 		{
+			score += 25;
+		ScoreEl.innerHTML = score;
 		// on removing the enemy from the array , they all flash , so using this would not do that 
 		setTimeout(()=> { 
 		enemies.splice(index , 1); // it is to remove the enemy after collision
@@ -265,7 +294,7 @@ enemies.forEach((enemy , index) => {enemy.update()
 	//clientY - returns Y cordinate 
 
 //when there is a click these set of instructions are executed
-window.addEventListener('click',(event) => 
+addEventListener('click',(event) => 
 {
 	const angle = Math.atan2(event.clientY-y,event.clientX-x)
 	const velocity = {x:Math.cos(angle) * 6 ,y:Math.sin(angle) * 6 }
@@ -276,9 +305,15 @@ window.addEventListener('click',(event) =>
 	
 })
 
-animate(); // to call the function
-spawnEnemies();  // to call the function 
 
+
+StartButton.addEventListener('click',() => 
+{
+	init();
+	animate(); // to call the function
+	spawnEnemies();  // to call the function 
+	boxel.style.display = 'none';
+})
 
 
 
